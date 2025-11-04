@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Ponto - Divisão 4</title>
+    <title>Controle de Ponto Pessoal - Quarta</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -775,6 +775,158 @@
             to { transform: rotate(360deg); }
         }
         
+        /* Manual Interativo */
+        .manual-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .manual-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .manual-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .manual-content {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            width: 300px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            padding: 20px;
+            display: none;
+        }
+        
+        .manual-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .manual-step {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .manual-step:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .manual-step h4 {
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .manual-mascot {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 40px;
+        }
+        
+        /* Camera */
+        .camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        #cameraPreview {
+            width: 100%;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+        }
+        
+        .camera-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        
+        /* Anexos Múltiplos */
+        .attachments-list {
+            margin-top: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+        }
+        
+        .attachment-preview {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        
+        .attachment-preview:last-child {
+            margin-bottom: 0;
+        }
+        
+        .attachment-remove {
+            color: var(--danger);
+            cursor: pointer;
+        }
+        
+        /* Calculadora de Horas */
+        .calculator-section {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+        
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .calculator-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .calculator-card h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .calculator-result {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin-top: 10px;
+        }
+        
         @media (max-width: 768px) {
             .dashboard-grid, .ponto-form, .ponto-buttons, .salary-form {
                 grid-template-columns: 1fr;
@@ -793,6 +945,11 @@
             .ponto-modes, .quick-actions {
                 flex-direction: column;
             }
+            
+            .manual-content {
+                width: 250px;
+                right: -50px;
+            }
         }
     </style>
 </head>
@@ -800,7 +957,7 @@
     <!-- Tela de Login -->
     <div id="loginScreen" class="login-container">
         <div class="login-form">
-            <h1><i class="fas fa-fingerprint"></i> Divisão 4 - Controle de Ponto</h1>
+            <h1><i class="fas fa-fingerprint"></i> Controle de Ponto Pessoal - Quarta</h1>
             <div id="loginForm">
                 <div class="form-group">
                     <label for="username"><i class="fas fa-user"></i> Usuário</label>
@@ -814,7 +971,8 @@
                     <i class="fas fa-sign-in-alt"></i> Entrar
                 </button>
                 <p style="text-align: center; margin-top: 15px;">
-                    Não tem conta? <a href="#" id="showRegister">Cadastre-se</a>
+                    Não tem conta? <a href="#" id="showRegister">Cadastre-se</a> | 
+                    <a href="#" id="showForgotPassword">Esqueci a senha</a>
                 </p>
                 <div id="loginError" class="alert alert-error" style="display: none;">
                     <i class="fas fa-exclamation-circle"></i> Usuário ou senha incorretos!
@@ -841,6 +999,33 @@
                 </p>
                 <div id="registerError" class="alert alert-error" style="display: none;"></div>
             </div>
+            <div id="forgotPasswordForm" style="display: none;">
+                <div class="form-group">
+                    <label for="forgotUsername"><i class="fas fa-user"></i> Usuário</label>
+                    <input type="text" id="forgotUsername" placeholder="Digite seu usuário">
+                </div>
+                <button id="requestResetBtn" class="btn btn-block">
+                    <i class="fas fa-key"></i> Solicitar Código de Recuperação
+                </button>
+                <div id="resetCodeSection" style="display: none;">
+                    <div class="form-group">
+                        <label for="resetCode"><i class="fas fa-shield-alt"></i> Código de Recuperação</label>
+                        <input type="text" id="resetCode" placeholder="Digite o código recebido">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword"><i class="fas fa-lock"></i> Nova Senha</label>
+                        <input type="password" id="newPassword" placeholder="Digite a nova senha">
+                    </div>
+                    <button id="resetPasswordBtn" class="btn btn-block">
+                        <i class="fas fa-sync-alt"></i> Redefinir Senha
+                    </button>
+                </div>
+                <p style="text-align: center; margin-top: 15px;">
+                    <a href="#" id="showLoginFromForgot">Voltar ao login</a>
+                </p>
+                <div id="forgotError" class="alert alert-error" style="display: none;"></div>
+                <div id="forgotSuccess" class="alert alert-success" style="display: none;"></div>
+            </div>
         </div>
     </div>
 
@@ -851,7 +1036,7 @@
                 <div class="header-content">
                     <div class="logo">
                         <i class="fas fa-fingerprint"></i>
-                        Divisão 4 - Ponto
+                        Controle de Ponto Pessoal - Quarta
                     </div>
                     <div class="user-info">
                         <span>Bem-vindo, <strong id="userName">Usuário</strong></span>
@@ -899,6 +1084,9 @@
                     </button>
                     <button class="tab-btn" data-tab="salary">
                         <i class="fas fa-calculator"></i> Cálculo Salarial
+                    </button>
+                    <button class="tab-btn" data-tab="calculator">
+                        <i class="fas fa-clock"></i> Calculadora de Horas
                     </button>
                 </div>
 
@@ -983,8 +1171,14 @@
                         <div class="attachments-section">
                             <div class="form-group">
                                 <label for="pontoAnexos"><i class="fas fa-paperclip"></i> Anexar Comprovante</label>
-                                <input type="file" id="pontoAnexos" accept=".pdf,.jpg,.jpeg,.png">
+                                <input type="file" id="pontoAnexos" accept=".pdf,.jpg,.jpeg,.png" multiple>
+                                <div class="attachments-list" id="attachmentsList"></div>
                                 <small>Adicione o recibo do ponto emitido pela empresa (PDF ou imagem)</small>
+                            </div>
+                            <div class="form-group">
+                                <button type="button" id="takePhotoBtn" class="btn btn-outline">
+                                    <i class="fas fa-camera"></i> Tirar Foto
+                                </button>
                             </div>
                         </div>
                         
@@ -1080,8 +1274,8 @@
                             <div class="form-row">
                                 <label for="extraPercentage"><i class="fas fa-percentage"></i> % Hora Extra</label>
                                 <select id="extraPercentage">
-                                    <option value="50">50% (Dias de semana)</option>
-                                    <option value="100">100% (Finais de semana/Feriados)</option>
+                                    <option value="60">60% (Dias de semana)</option>
+                                    <option value="80">80% (Finais de semana/Feriados)</option>
                                 </select>
                             </div>
                         </form>
@@ -1113,6 +1307,48 @@
                         </div>
                     </section>
                 </div>
+                
+                <!-- Aba Calculadora de Horas -->
+                <div id="calculatorTab" class="tab-content">
+                    <section class="calculator-section">
+                        <h2><i class="fas fa-clock"></i> Calculadora de Horas</h2>
+                        <div class="calculator-grid">
+                            <div class="calculator-card">
+                                <h3>Minutos Atrasados</h3>
+                                <div class="form-group">
+                                    <label for="lateMinutes">Minutos de Atraso</label>
+                                    <input type="number" id="lateMinutes" placeholder="Ex: 15" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="hourValueLate">Valor da Hora (R$)</label>
+                                    <input type="number" id="hourValueLate" placeholder="Ex: 20.00" step="0.01" min="0">
+                                </div>
+                                <button id="calculateLateBtn" class="btn btn-block">Calcular</button>
+                                <div class="calculator-result" id="lateResult">R$ 0,00</div>
+                            </div>
+                            <div class="calculator-card">
+                                <h3>Horas Extras</h3>
+                                <div class="form-group">
+                                    <label for="extraHours">Horas Extras</label>
+                                    <input type="number" id="extraHours" placeholder="Ex: 2.5" step="0.5" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="hourValueExtra">Valor da Hora (R$)</label>
+                                    <input type="number" id="hourValueExtra" placeholder="Ex: 20.00" step="0.01" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="extraPercentageCalc">% Hora Extra</label>
+                                    <select id="extraPercentageCalc">
+                                        <option value="60">60%</option>
+                                        <option value="80">80%</option>
+                                    </select>
+                                </div>
+                                <button id="calculateExtraBtn" class="btn btn-block">Calcular</button>
+                                <div class="calculator-result" id="extraResult">R$ 0,00</div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
             </div>
         </main>
         
@@ -1139,6 +1375,57 @@
         </div>
     </div>
 
+    <!-- Modal para Tirar Foto -->
+    <div id="cameraModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-camera"></i> Tirar Foto</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="camera-container">
+                <video id="cameraPreview" autoplay></video>
+                <div class="camera-controls">
+                    <button id="captureBtn" class="btn btn-success">
+                        <i class="fas fa-camera"></i> Capturar
+                    </button>
+                    <button id="cancelCameraBtn" class="btn btn-light">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+                <canvas id="photoCanvas" style="display: none;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual Interativo -->
+    <div class="manual-container">
+        <div class="manual-btn" id="manualBtn">
+            <i class="fas fa-question"></i>
+        </div>
+        <div class="manual-content" id="manualContent">
+            <div class="manual-mascot">
+                🌵
+            </div>
+            <h3 style="text-align: center; margin-bottom: 15px;">Manual do Sistema</h3>
+            <div class="manual-step">
+                <h4>1. Registro de Ponto</h4>
+                <p>Registre cada ponto individualmente. O sistema não permite alteração após o registro.</p>
+            </div>
+            <div class="manual-step">
+                <h4>2. Horas Extras</h4>
+                <p>As horas extras são calculadas automaticamente após o horário regular de trabalho.</p>
+            </div>
+            <div class="manual-step">
+                <h4>3. Localização</h4>
+                <p>Verifique sua localização para confirmar que está no local de trabalho correto.</p>
+            </div>
+            <div class="manual-step">
+                <h4>4. Anexos</h4>
+                <p>Adicione múltiplos arquivos como comprovantes ou tire fotos diretamente.</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Sistema de Ponto Aprimorado
         class PontoSystem {
@@ -1150,6 +1437,7 @@
                 this.currentEditIndex = null;
                 this.currentMode = 'manual';
                 this.userLocation = null;
+                this.attachments = [];
                 this.init();
             }
             
@@ -1177,17 +1465,28 @@
                 this.mainScreen = document.getElementById('mainScreen');
                 this.loginForm = document.getElementById('loginForm');
                 this.registerForm = document.getElementById('registerForm');
+                this.forgotPasswordForm = document.getElementById('forgotPasswordForm');
                 this.usernameInput = document.getElementById('username');
                 this.passwordInput = document.getElementById('password');
                 this.loginBtn = document.getElementById('loginBtn');
                 this.loginError = document.getElementById('loginError');
                 this.showRegister = document.getElementById('showRegister');
                 this.showLogin = document.getElementById('showLogin');
+                this.showForgotPassword = document.getElementById('showForgotPassword');
+                this.showLoginFromForgot = document.getElementById('showLoginFromForgot');
                 this.regName = document.getElementById('regName');
                 this.regUsername = document.getElementById('regUsername');
                 this.regPassword = document.getElementById('regPassword');
                 this.registerBtn = document.getElementById('registerBtn');
                 this.registerError = document.getElementById('registerError');
+                this.forgotUsername = document.getElementById('forgotUsername');
+                this.requestResetBtn = document.getElementById('requestResetBtn');
+                this.resetCodeSection = document.getElementById('resetCodeSection');
+                this.resetCode = document.getElementById('resetCode');
+                this.newPassword = document.getElementById('newPassword');
+                this.resetPasswordBtn = document.getElementById('resetPasswordBtn');
+                this.forgotError = document.getElementById('forgotError');
+                this.forgotSuccess = document.getElementById('forgotSuccess');
                 
                 // Main
                 this.logoutBtn = document.getElementById('logoutBtn');
@@ -1211,6 +1510,7 @@
                 this.pontoSaida = document.getElementById('pontoSaida');
                 this.pontoObservacao = document.getElementById('pontoObservacao');
                 this.pontoAnexos = document.getElementById('pontoAnexos');
+                this.attachmentsList = document.getElementById('attachmentsList');
                 this.addPontoBtn = document.getElementById('addPontoBtn');
                 this.clearFormBtn = document.getElementById('clearFormBtn');
                 this.pontoAlert = document.getElementById('pontoAlert');
@@ -1242,11 +1542,34 @@
                 this.totalExtraHours = document.getElementById('totalExtraHours');
                 this.totalExtraValue = document.getElementById('totalExtraValue');
                 
+                // Calculadora de horas
+                this.lateMinutes = document.getElementById('lateMinutes');
+                this.hourValueLate = document.getElementById('hourValueLate');
+                this.calculateLateBtn = document.getElementById('calculateLateBtn');
+                this.lateResult = document.getElementById('lateResult');
+                this.extraHours = document.getElementById('extraHours');
+                this.hourValueExtra = document.getElementById('hourValueExtra');
+                this.extraPercentageCalc = document.getElementById('extraPercentageCalc');
+                this.calculateExtraBtn = document.getElementById('calculateExtraBtn');
+                this.extraResult = document.getElementById('extraResult');
+                
                 // Modal de visualização
                 this.pontoModal = document.getElementById('pontoModal');
                 this.pontoDetails = document.getElementById('pontoDetails');
                 this.closeBtn = document.querySelector('.close-btn');
                 this.closeModalBtn = document.getElementById('closeModalBtn');
+                
+                // Camera
+                this.takePhotoBtn = document.getElementById('takePhotoBtn');
+                this.cameraModal = document.getElementById('cameraModal');
+                this.cameraPreview = document.getElementById('cameraPreview');
+                this.captureBtn = document.getElementById('captureBtn');
+                this.cancelCameraBtn = document.getElementById('cancelCameraBtn');
+                this.photoCanvas = document.getElementById('photoCanvas');
+                
+                // Manual
+                this.manualBtn = document.getElementById('manualBtn');
+                this.manualContent = document.getElementById('manualContent');
             }
             
             setupEvents() {
@@ -1261,6 +1584,16 @@
                     e.preventDefault();
                     this.showLoginForm();
                 });
+                this.showForgotPassword.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showForgotPasswordForm();
+                });
+                this.showLoginFromForgot.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showLoginForm();
+                });
+                this.requestResetBtn.addEventListener('click', () => this.requestResetCode());
+                this.resetPasswordBtn.addEventListener('click', () => this.resetPassword());
                 
                 // Main
                 this.logoutBtn.addEventListener('click', () => this.handleLogout());
@@ -1280,6 +1613,7 @@
                 // Formulário de ponto
                 this.addPontoBtn.addEventListener('click', () => this.addPonto());
                 this.clearFormBtn.addEventListener('click', () => this.clearForm());
+                this.pontoAnexos.addEventListener('change', () => this.handleFileUpload());
                 
                 // Localização
                 this.getLocationBtn.addEventListener('click', () => this.getLocation());
@@ -1298,12 +1632,24 @@
                 // Cálculo salarial
                 this.calculateSalaryBtn.addEventListener('click', () => this.calculateSalary());
                 
+                // Calculadora de horas
+                this.calculateLateBtn.addEventListener('click', () => this.calculateLate());
+                this.calculateExtraBtn.addEventListener('click', () => this.calculateExtra());
+                
                 // Modal de visualização
                 this.closeBtn.addEventListener('click', () => this.hideModal());
                 this.closeModalBtn.addEventListener('click', () => this.hideModal());
                 this.pontoModal.addEventListener('click', (e) => {
                     if (e.target === this.pontoModal) this.hideModal();
                 });
+                
+                // Camera
+                this.takePhotoBtn.addEventListener('click', () => this.openCamera());
+                this.captureBtn.addEventListener('click', () => this.capturePhoto());
+                this.cancelCameraBtn.addEventListener('click', () => this.closeCamera());
+                
+                // Manual
+                this.manualBtn.addEventListener('click', () => this.toggleManual());
             }
             
             // Autenticação
@@ -1355,16 +1701,87 @@
                 this.showAlert('Cadastro realizado com sucesso!', 'success');
             }
             
+            requestResetCode() {
+                const username = this.forgotUsername.value;
+                
+                if (!username) {
+                    this.forgotError.textContent = 'Digite seu usuário!';
+                    this.forgotError.style.display = 'block';
+                    return;
+                }
+                
+                if (!this.users[username]) {
+                    this.forgotError.textContent = 'Usuário não encontrado!';
+                    this.forgotError.style.display = 'block';
+                    return;
+                }
+                
+                // Simular envio de código (em um sistema real, enviaria por email)
+                const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+                this.users[username].resetCode = resetCode;
+                localStorage.setItem('pontoUsers', JSON.stringify(this.users));
+                
+                this.resetCodeSection.style.display = 'block';
+                this.forgotSuccess.textContent = `Código de recuperação enviado: ${resetCode}`;
+                this.forgotSuccess.style.display = 'block';
+                this.forgotError.style.display = 'none';
+            }
+            
+            resetPassword() {
+                const username = this.forgotUsername.value;
+                const resetCode = this.resetCode.value;
+                const newPassword = this.newPassword.value;
+                
+                if (!resetCode || !newPassword) {
+                    this.forgotError.textContent = 'Preencha todos os campos!';
+                    this.forgotError.style.display = 'block';
+                    return;
+                }
+                
+                if (this.users[username].resetCode !== resetCode) {
+                    this.forgotError.textContent = 'Código de recuperação inválido!';
+                    this.forgotError.style.display = 'block';
+                    return;
+                }
+                
+                this.users[username].password = newPassword;
+                delete this.users[username].resetCode;
+                localStorage.setItem('pontoUsers', JSON.stringify(this.users));
+                
+                this.forgotSuccess.textContent = 'Senha redefinida com sucesso!';
+                this.forgotSuccess.style.display = 'block';
+                this.forgotError.style.display = 'none';
+                
+                setTimeout(() => {
+                    this.showLoginForm();
+                }, 2000);
+            }
+            
             showLoginForm() {
                 this.loginForm.style.display = 'block';
                 this.registerForm.style.display = 'none';
+                this.forgotPasswordForm.style.display = 'none';
                 this.registerError.style.display = 'none';
+                this.forgotError.style.display = 'none';
+                this.forgotSuccess.style.display = 'none';
             }
             
             showRegisterForm() {
                 this.loginForm.style.display = 'none';
                 this.registerForm.style.display = 'block';
+                this.forgotPasswordForm.style.display = 'none';
                 this.loginError.style.display = 'none';
+            }
+            
+            showForgotPasswordForm() {
+                this.loginForm.style.display = 'none';
+                this.registerForm.style.display = 'none';
+                this.forgotPasswordForm.style.display = 'block';
+                this.loginError.style.display = 'none';
+                this.registerError.style.display = 'none';
+                this.resetCodeSection.style.display = 'none';
+                this.forgotError.style.display = 'none';
+                this.forgotSuccess.style.display = 'none';
             }
             
             handleLogout() {
@@ -1492,31 +1909,13 @@
                     saida,
                     observacao: observacao || null,
                     localizacao: this.userLocation,
-                    anexos: null,
+                    anexos: [...this.attachments],
                     horasTrabalhadas: '00:00',
                     horasExtras: '00:00',
                     status: 'presente'
                 };
                 
-                // Processar anexo se existir
-                if (this.pontoAnexos.files.length > 0) {
-                    const file = this.pontoAnexos.files[0];
-                    const reader = new FileReader();
-                    
-                    reader.onload = (e) => {
-                        novoPonto.anexos = {
-                            nome: file.name,
-                            tipo: file.type,
-                            dados: e.target.result
-                        };
-                        
-                        this.finalizarPonto(novoPonto);
-                    };
-                    
-                    reader.readAsDataURL(file);
-                } else {
-                    this.finalizarPonto(novoPonto);
-                }
+                this.finalizarPonto(novoPonto);
             }
             
             finalizarPonto(ponto) {
@@ -1535,6 +1934,8 @@
                 this.pontoForm.reset();
                 this.pontoObservacao.value = '';
                 this.pontoAnexos.value = '';
+                this.attachments = [];
+                this.updateAttachmentsList();
                 this.locationInfo.style.display = 'none';
                 this.userLocation = null;
                 
@@ -1612,6 +2013,116 @@
                 if (!timeStr) return 0;
                 const [hours, minutes] = timeStr.split(':').map(Number);
                 return hours * 60 + minutes;
+            }
+            
+            // Anexos
+            handleFileUpload() {
+                const files = this.pontoAnexos.files;
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+                    
+                    reader.onload = (e) => {
+                        this.attachments.push({
+                            nome: file.name,
+                            tipo: file.type,
+                            dados: e.target.result,
+                            id: Date.now() + i
+                        });
+                        this.updateAttachmentsList();
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+                
+                // Limpar o input para permitir novos uploads
+                this.pontoAnexos.value = '';
+            }
+            
+            updateAttachmentsList() {
+                this.attachmentsList.innerHTML = '';
+                
+                if (this.attachments.length === 0) {
+                    this.attachmentsList.innerHTML = '<div style="text-align: center; color: var(--gray);">Nenhum arquivo anexado</div>';
+                    return;
+                }
+                
+                this.attachments.forEach(attachment => {
+                    const preview = document.createElement('div');
+                    preview.className = 'attachment-preview';
+                    preview.innerHTML = `
+                        <div>
+                            <i class="fas fa-file attachment-icon"></i>
+                            <span>${attachment.nome}</span>
+                        </div>
+                        <i class="fas fa-times attachment-remove" data-id="${attachment.id}"></i>
+                    `;
+                    
+                    this.attachmentsList.appendChild(preview);
+                });
+                
+                // Adicionar eventos de remoção
+                document.querySelectorAll('.attachment-remove').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = parseInt(e.target.getAttribute('data-id'));
+                        this.removeAttachment(id);
+                    });
+                });
+            }
+            
+            removeAttachment(id) {
+                this.attachments = this.attachments.filter(a => a.id !== id);
+                this.updateAttachmentsList();
+            }
+            
+            // Camera
+            openCamera() {
+                this.cameraModal.style.display = 'flex';
+                
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ video: true })
+                        .then(stream => {
+                            this.cameraPreview.srcObject = stream;
+                        })
+                        .catch(error => {
+                            this.showAlert('Erro ao acessar a câmera: ' + error.message, 'error');
+                            this.closeCamera();
+                        });
+                } else {
+                    this.showAlert('Seu navegador não suporta acesso à câmera', 'error');
+                    this.closeCamera();
+                }
+            }
+            
+            closeCamera() {
+                this.cameraModal.style.display = 'none';
+                
+                if (this.cameraPreview.srcObject) {
+                    const tracks = this.cameraPreview.srcObject.getTracks();
+                    tracks.forEach(track => track.stop());
+                    this.cameraPreview.srcObject = null;
+                }
+            }
+            
+            capturePhoto() {
+                const context = this.photoCanvas.getContext('2d');
+                this.photoCanvas.width = this.cameraPreview.videoWidth;
+                this.photoCanvas.height = this.cameraPreview.videoHeight;
+                context.drawImage(this.cameraPreview, 0, 0);
+                
+                const photoData = this.photoCanvas.toDataURL('image/jpeg');
+                
+                this.attachments.push({
+                    nome: `foto_${new Date().toISOString().replace(/[:.]/g, '-')}.jpg`,
+                    tipo: 'image/jpeg',
+                    dados: photoData,
+                    id: Date.now()
+                });
+                
+                this.updateAttachmentsList();
+                this.closeCamera();
+                this.showAlert('Foto capturada com sucesso!', 'success');
             }
             
             // Localização
@@ -1742,6 +2253,38 @@
                 
                 // Salvar dados do usuário
                 this.saveUserData();
+            }
+            
+            // Calculadora de Horas
+            calculateLate() {
+                const minutes = parseInt(this.lateMinutes.value) || 0;
+                const hourValue = parseFloat(this.hourValueLate.value) || 0;
+                
+                if (minutes <= 0 || hourValue <= 0) {
+                    this.lateResult.textContent = 'R$ 0,00';
+                    return;
+                }
+                
+                const minuteValue = hourValue / 60;
+                const totalValue = minutes * minuteValue;
+                
+                this.lateResult.textContent = `R$ ${totalValue.toFixed(2)}`;
+            }
+            
+            calculateExtra() {
+                const hours = parseFloat(this.extraHours.value) || 0;
+                const hourValue = parseFloat(this.hourValueExtra.value) || 0;
+                const percentage = parseInt(this.extraPercentageCalc.value) || 60;
+                
+                if (hours <= 0 || hourValue <= 0) {
+                    this.extraResult.textContent = 'R$ 0,00';
+                    return;
+                }
+                
+                const extraHourValue = hourValue * (1 + percentage / 100);
+                const totalValue = hours * extraHourValue;
+                
+                this.extraResult.textContent = `R$ ${totalValue.toFixed(2)}`;
             }
             
             // UI
@@ -1913,16 +2456,20 @@
                 }
                 
                 let anexoHTML = '';
-                if (ponto.anexos) {
-                    anexoHTML = `
-                        <div class="attachment-item">
-                            <i class="fas fa-paperclip attachment-icon"></i>
-                            <span>${ponto.anexos.nome}</span>
-                            <a href="${ponto.anexos.dados}" download="${ponto.anexos.nome}" class="btn btn-outline" style="margin-left: auto;">
-                                <i class="fas fa-download"></i> Baixar
-                            </a>
-                        </div>
-                    `;
+                if (ponto.anexos && ponto.anexos.length > 0) {
+                    ponto.anexos.forEach(anexo => {
+                        anexoHTML += `
+                            <div class="attachment-item">
+                                <i class="fas fa-paperclip attachment-icon"></i>
+                                <span>${anexo.nome}</span>
+                                <a href="${anexo.dados}" download="${anexo.nome}" class="btn btn-outline" style="margin-left: auto;">
+                                    <i class="fas fa-download"></i> Baixar
+                                </a>
+                            </div>
+                        `;
+                    });
+                } else {
+                    anexoHTML = '<div>Nenhum anexo</div>';
                 }
                 
                 this.pontoDetails.innerHTML = `
@@ -1971,7 +2518,7 @@
                     </div>
                     <div class="form-group">
                         <label>Anexos</label>
-                        ${anexoHTML || '<div>Nenhum anexo</div>'}
+                        ${anexoHTML}
                     </div>
                 `;
                 
@@ -1991,17 +2538,23 @@
                 this.pontoModal.style.display = 'none';
             }
             
+            // Manual
+            toggleManual() {
+                this.manualContent.classList.toggle('active');
+            }
+            
             // PDF
             exportPDF() {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 
                 doc.setFontSize(20);
-                doc.text('Relatório de Ponto', 105, 15, { align: 'center' });
+                doc.text('Relatório de Ponto - Controle de Ponto Pessoal', 105, 15, { align: 'center' });
                 
                 doc.setFontSize(12);
                 doc.text(`Funcionário: ${this.userData.profile.name}`, 14, 25);
                 doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 14, 32);
+                doc.text(`Período: ${this.getPeriodText()}`, 14, 39);
                 
                 const tableColumn = ["Data", "Entrada", "Almoço", "Volta", "Saída", "Horas", "Extras", "Status"];
                 const tableRows = [];
@@ -2028,13 +2581,27 @@
                 doc.autoTable({
                     head: [tableColumn],
                     body: tableRows,
-                    startY: 40,
+                    startY: 50,
                     theme: 'grid',
                     styles: { fontSize: 10 },
                     headStyles: { fillColor: [44, 90, 160] }
                 });
                 
+                // Adicionar rodapé
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(10);
+                    doc.text(`Página ${i} de ${pageCount}`, 105, doc.internal.pageSize.height - 10, { align: 'center' });
+                }
+                
                 doc.save(`relatorio_ponto_${new Date().toISOString().split('T')[0]}.pdf`);
+            }
+            
+            getPeriodText() {
+                const hoje = new Date();
+                const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+                return `${this.formatDate(primeiroDia.toISOString().split('T')[0])} a ${this.formatDate(hoje.toISOString().split('T')[0])}`;
             }
             
             // Utils
