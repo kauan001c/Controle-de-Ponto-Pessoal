@@ -1,0 +1,2062 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Ponto - Divisão 4</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="shortcut icon" href="images.ico" type="image/x-icon">
+    <style>
+        :root {
+            --primary: #2c5aa0;
+            --primary-dark: #1e3d6f;
+            --primary-light: #4a7bc8;
+            --secondary: #4a6fa5;
+            --accent: #3a7bd5;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+            --border: #dee2e6;
+            --shadow: 0 2px 10px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Login */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-container::before {
+            content: "";
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.05)"/></svg>');
+            background-size: cover;
+            animation: float 20s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-50px, -50px) rotate(360deg); }
+        }
+        
+        .login-form {
+            background: white;
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .login-form h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 28px;
+            position: relative;
+        }
+        
+        .login-form h1::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+            outline: none;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition);
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-block {
+            width: 100%;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #3d5c8a;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+        
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        
+        .btn-light {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+        
+        .btn-light:hover {
+            background-color: #e2e6ea;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        /* Header */
+        header {
+            background-color: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        /* Dashboard */
+        .dashboard {
+            flex: 1;
+            padding: 20px 0;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            text-align: center;
+            border-left: 4px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .card h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: var(--gray);
+        }
+        
+        .card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .card .subtitle {
+            font-size: 13px;
+            color: var(--gray);
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray);
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Registro de Ponto */
+        .ponto-section {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+        
+        .ponto-section h2 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .ponto-modes {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .mode-btn.active {
+            border-color: var(--primary);
+            background-color: rgba(44, 90, 160, 0.05);
+        }
+        
+        .mode-btn i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
+            color: var(--primary);
+        }
+        
+        .ponto-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-row label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .ponto-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        /* Tabela */
+        .table-section {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+        
+        .table-section h2 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            background-color: #f1f5fd;
+            font-weight: 600;
+            color: var(--primary);
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:hover {
+            background-color: #f8faff;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            margin-right: 5px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        
+        .action-btn:hover {
+            background-color: rgba(44, 90, 160, 0.1);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            color: var(--primary);
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+        
+        .close-btn:hover {
+            color: var(--dark);
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* Status */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-presente {
+            background-color: rgba(40, 167, 69, 0.15);
+            color: var(--success);
+        }
+        
+        .status-atraso {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: var(--warning);
+        }
+        
+        .status-falta {
+            background-color: rgba(220, 53, 69, 0.15);
+            color: var(--danger);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-top: auto;
+        }
+        
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        /* Alertas */
+        .alert {
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.15);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+        
+        .alert-error {
+            background-color: rgba(220, 53, 69, 0.15);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+        
+        .alert-warning {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+        
+        /* Observações */
+        .observations-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .observation-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .observation-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        /* Localização */
+        .location-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .location-verified {
+            color: var(--success);
+        }
+        
+        .location-not-verified {
+            color: var(--danger);
+        }
+        
+        /* Anexos */
+        .attachments-section {
+            margin-top: 20px;
+        }
+        
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .attachment-icon {
+            font-size: 20px;
+            color: var(--primary);
+        }
+        
+        /* Salário e Horas Extras */
+        .salary-section {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+        
+        .salary-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .salary-results {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .result-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .progress {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .quick-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .quick-btn:hover {
+            border-color: var(--primary);
+            background-color: rgba(44, 90, 160, 0.05);
+        }
+        
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid, .ponto-form, .ponto-buttons, .salary-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .table-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .ponto-modes, .quick-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-form">
+            <h1><i class="fas fa-fingerprint"></i> Divisão 4 - Controle de Ponto</h1>
+            <div id="loginForm">
+                <div class="form-group">
+                    <label for="username"><i class="fas fa-user"></i> Usuário</label>
+                    <input type="text" id="username" placeholder="Digite seu usuário">
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> Senha</label>
+                    <input type="password" id="password" placeholder="Digite sua senha">
+                </div>
+                <button id="loginBtn" class="btn btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </button>
+                <p style="text-align: center; margin-top: 15px;">
+                    Não tem conta? <a href="#" id="showRegister">Cadastre-se</a>
+                </p>
+                <div id="loginError" class="alert alert-error" style="display: none;">
+                    <i class="fas fa-exclamation-circle"></i> Usuário ou senha incorretos!
+                </div>
+            </div>
+            <div id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label for="regName"><i class="fas fa-user"></i> Nome Completo</label>
+                    <input type="text" id="regName" placeholder="Digite seu nome">
+                </div>
+                <div class="form-group">
+                    <label for="regUsername"><i class="fas fa-at"></i> Usuário</label>
+                    <input type="text" id="regUsername" placeholder="Escolha um usuário">
+                </div>
+                <div class="form-group">
+                    <label for="regPassword"><i class="fas fa-lock"></i> Senha</label>
+                    <input type="password" id="regPassword" placeholder="Crie uma senha">
+                </div>
+                <button id="registerBtn" class="btn btn-block">
+                    <i class="fas fa-user-plus"></i> Cadastrar
+                </button>
+                <p style="text-align: center; margin-top: 15px;">
+                    Já tem conta? <a href="#" id="showLogin">Fazer login</a>
+                </p>
+                <div id="registerError" class="alert alert-error" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sistema Principal -->
+    <div id="mainScreen" style="display: none;">
+        <header>
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo">
+                        <i class="fas fa-fingerprint"></i>
+                        Divisão 4 - Ponto
+                    </div>
+                    <div class="user-info">
+                        <span>Bem-vindo, <strong id="userName">Usuário</strong></span>
+                        <button id="logoutBtn" class="btn btn-danger">
+                            <i class="fas fa-sign-out-alt"></i> Sair
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard">
+            <div class="container">
+                <!-- Dashboard -->
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>Horas Hoje</h3>
+                        <div class="value" id="hoursToday">00:00</div>
+                        <div class="subtitle" id="todayStatus">-</div>
+                    </div>
+                    <div class="card">
+                        <h3>Extras Hoje</h3>
+                        <div class="value" id="overtimeToday">00:00</div>
+                        <div class="subtitle">Acumulado</div>
+                    </div>
+                    <div class="card">
+                        <h3>Horas Semana</h3>
+                        <div class="value" id="hoursWeek">00:00</div>
+                        <div class="subtitle">Total</div>
+                    </div>
+                    <div class="card">
+                        <h3>Faltas Mês</h3>
+                        <div class="value" id="absencesMonth">0</div>
+                        <div class="subtitle">Dias</div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="ponto">
+                        <i class="fas fa-clock"></i> Registrar Ponto
+                    </button>
+                    <button class="tab-btn" data-tab="extras">
+                        <i class="fas fa-business-time"></i> Horas Extras
+                    </button>
+                    <button class="tab-btn" data-tab="salary">
+                        <i class="fas fa-calculator"></i> Cálculo Salarial
+                    </button>
+                </div>
+
+                <!-- Aba Registrar Ponto -->
+                <div id="pontoTab" class="tab-content active">
+                    <section class="ponto-section">
+                        <h2><i class="fas fa-clock"></i> Registro de Ponto</h2>
+                        <div id="pontoAlert" class="alert alert-success" style="display: none;"></div>
+                        
+                        <!-- Modos de Registro -->
+                        <div class="ponto-modes">
+                            <div class="mode-btn active" data-mode="manual">
+                                <i class="fas fa-keyboard"></i>
+                                <div>Modo Manual</div>
+                            </div>
+                            <div class="mode-btn" data-mode="quick">
+                                <i class="fas fa-bolt"></i>
+                                <div>Preenchimento Rápido</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Ações Rápidas -->
+                        <div class="quick-actions" id="quickActions" style="display: none;">
+                            <button class="quick-btn" data-action="entrada">
+                                <i class="fas fa-sign-in-alt"></i> Entrada
+                            </button>
+                            <button class="quick-btn" data-action="almoco">
+                                <i class="fas fa-utensils"></i> Almoço
+                            </button>
+                            <button class="quick-btn" data-action="volta">
+                                <i class="fas fa-undo"></i> Volta
+                            </button>
+                            <button class="quick-btn" data-action="saida">
+                                <i class="fas fa-sign-out-alt"></i> Saída
+                            </button>
+                        </div>
+                        
+                        <!-- Formulário de Ponto -->
+                        <form id="pontoForm" class="ponto-form">
+                            <div class="form-row">
+                                <label for="pontoDate"><i class="fas fa-calendar"></i> Data</label>
+                                <input type="date" id="pontoDate" required>
+                            </div>
+                            <div class="form-row">
+                                <label for="pontoEntrada"><i class="fas fa-sign-in-alt"></i> Entrada</label>
+                                <input type="time" id="pontoEntrada" required>
+                            </div>
+                            <div class="form-row">
+                                <label for="pontoIntervalo"><i class="fas fa-utensils"></i> Almoço</label>
+                                <input type="time" id="pontoIntervalo">
+                            </div>
+                            <div class="form-row">
+                                <label for="pontoRetorno"><i class="fas fa-undo"></i> Volta</label>
+                                <input type="time" id="pontoRetorno">
+                            </div>
+                            <div class="form-row">
+                                <label for="pontoSaida"><i class="fas fa-sign-out-alt"></i> Saída</label>
+                                <input type="time" id="pontoSaida" required>
+                            </div>
+                        </form>
+                        
+                        <!-- Observações -->
+                        <div class="observations-section">
+                            <div class="form-group">
+                                <label for="pontoObservacao"><i class="fas fa-sticky-note"></i> Observações</label>
+                                <textarea id="pontoObservacao" placeholder="Descreva observações sobre o dia (atrasos, saídas antecipadas, etc.)" rows="3"></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Localização -->
+                        <div class="form-group">
+                            <button type="button" id="getLocationBtn" class="btn btn-outline">
+                                <i class="fas fa-map-marker-alt"></i> Verificar Localização
+                            </button>
+                            <div id="locationInfo" class="location-info" style="display: none;">
+                                <i class="fas fa-check-circle location-verified"></i>
+                                <span>Localização verificada: Vancrei Assessoria Contábil</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Anexos -->
+                        <div class="attachments-section">
+                            <div class="form-group">
+                                <label for="pontoAnexos"><i class="fas fa-paperclip"></i> Anexar Comprovante</label>
+                                <input type="file" id="pontoAnexos" accept=".pdf,.jpg,.jpeg,.png">
+                                <small>Adicione o recibo do ponto emitido pela empresa (PDF ou imagem)</small>
+                            </div>
+                        </div>
+                        
+                        <div class="ponto-buttons">
+                            <button id="addPontoBtn" class="btn btn-success">
+                                <i class="fas fa-save"></i> Registrar Ponto
+                            </button>
+                            <button id="clearFormBtn" class="btn btn-light">
+                                <i class="fas fa-eraser"></i> Limpar
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Tabela de Pontos -->
+                    <section class="table-section">
+                        <div class="table-controls">
+                            <h2><i class="fas fa-list"></i> Registros</h2>
+                            <div>
+                                <button id="todayBtn" class="btn">
+                                    <i class="fas fa-calendar-day"></i> Hoje
+                                </button>
+                                <button id="weekBtn" class="btn btn-secondary">
+                                    <i class="fas fa-calendar-week"></i> Semana
+                                </button>
+                                <button id="monthBtn" class="btn btn-danger">
+                                    <i class="fas fa-calendar-alt"></i> Mês
+                                </button>
+                                <button id="exportBtn" class="btn btn-warning">
+                                    <i class="fas fa-file-pdf"></i> Exportar PDF
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table id="pontosTable">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Entrada</th>
+                                        <th>Almoço</th>
+                                        <th>Volta</th>
+                                        <th>Saída</th>
+                                        <th>Horas</th>
+                                        <th>Extras</th>
+                                        <th>Status</th>
+                                        <th>Localização</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pontosTableBody"></tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Aba Horas Extras -->
+                <div id="extrasTab" class="tab-content">
+                    <section class="table-section">
+                        <h2><i class="fas fa-business-time"></i> Horas Extras</h2>
+                        <div class="table-container">
+                            <table id="extrasTable">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Dia</th>
+                                        <th>Horário Extra</th>
+                                        <th>Total Extras</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="extrasTableBody"></tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+                
+                <!-- Aba Cálculo Salarial -->
+                <div id="salaryTab" class="tab-content">
+                    <section class="salary-section">
+                        <h2><i class="fas fa-calculator"></i> Cálculo Salarial</h2>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-info-circle"></i> 
+                            Configure seu salário para calcular o valor das horas extras conforme as regras da DP.
+                        </div>
+                        
+                        <form id="salaryForm" class="salary-form">
+                            <div class="form-row">
+                                <label for="salaryValue"><i class="fas fa-money-bill-wave"></i> Salário Bruto (R$)</label>
+                                <input type="number" id="salaryValue" placeholder="Ex: 2500" step="0.01" min="0">
+                            </div>
+                            <div class="form-row">
+                                <label for="workHours"><i class="fas fa-clock"></i> Horas Semanais</label>
+                                <input type="number" id="workHours" value="44" min="1" max="60">
+                            </div>
+                            <div class="form-row">
+                                <label for="extraPercentage"><i class="fas fa-percentage"></i> % Hora Extra</label>
+                                <select id="extraPercentage">
+                                    <option value="50">50% (Dias de semana)</option>
+                                    <option value="100">100% (Finais de semana/Feriados)</option>
+                                </select>
+                            </div>
+                        </form>
+                        
+                        <div class="ponto-buttons">
+                            <button id="calculateSalaryBtn" class="btn btn-success">
+                                <i class="fas fa-calculator"></i> Calcular
+                            </button>
+                        </div>
+                        
+                        <div id="salaryResults" class="salary-results" style="display: none;">
+                            <h3>Resultados</h3>
+                            <div class="result-item">
+                                <span>Valor da Hora Normal:</span>
+                                <strong id="hourValue">R$ 0,00</strong>
+                            </div>
+                            <div class="result-item">
+                                <span>Valor da Hora Extra:</span>
+                                <strong id="extraHourValue">R$ 0,00</strong>
+                            </div>
+                            <div class="result-item">
+                                <span>Total de Horas Extras no Mês:</span>
+                                <strong id="totalExtraHours">00:00</strong>
+                            </div>
+                            <div class="result-item">
+                                <span>Valor Total de Horas Extras:</span>
+                                <strong id="totalExtraValue">R$ 0,00</strong>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <div class="container">
+                Criado por <a href="https://instagram.com/Karolino.01" target="_blank">Francisco Kauan @Karolino.01</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal para Visualizar Ponto -->
+    <div id="pontoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-eye"></i> Detalhes do Ponto</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div id="pontoDetails">
+                <!-- Conteúdo será preenchido dinamicamente -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" id="closeModalBtn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de Ponto Aprimorado
+        class PontoSystem {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('pontoUsers')) || {};
+                this.currentUser = null;
+                this.userData = null;
+                this.pontos = [];
+                this.currentEditIndex = null;
+                this.currentMode = 'manual';
+                this.userLocation = null;
+                this.init();
+            }
+            
+            init() {
+                this.setupElements();
+                this.setupEvents();
+                
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser && this.users[savedUser]) {
+                    this.currentUser = savedUser;
+                    this.loadUserData();
+                    this.showMainScreen();
+                }
+                
+                const today = new Date().toISOString().split('T')[0];
+                this.pontoDate.value = today;
+                
+                // Configurar data máxima como hoje (não permite registrar pontos futuros)
+                this.pontoDate.max = today;
+            }
+            
+            setupElements() {
+                // Login
+                this.loginScreen = document.getElementById('loginScreen');
+                this.mainScreen = document.getElementById('mainScreen');
+                this.loginForm = document.getElementById('loginForm');
+                this.registerForm = document.getElementById('registerForm');
+                this.usernameInput = document.getElementById('username');
+                this.passwordInput = document.getElementById('password');
+                this.loginBtn = document.getElementById('loginBtn');
+                this.loginError = document.getElementById('loginError');
+                this.showRegister = document.getElementById('showRegister');
+                this.showLogin = document.getElementById('showLogin');
+                this.regName = document.getElementById('regName');
+                this.regUsername = document.getElementById('regUsername');
+                this.regPassword = document.getElementById('regPassword');
+                this.registerBtn = document.getElementById('registerBtn');
+                this.registerError = document.getElementById('registerError');
+                
+                // Main
+                this.logoutBtn = document.getElementById('logoutBtn');
+                this.userNameSpan = document.getElementById('userName');
+                this.hoursTodaySpan = document.getElementById('hoursToday');
+                this.overtimeTodaySpan = document.getElementById('overtimeToday');
+                this.hoursWeekSpan = document.getElementById('hoursWeek');
+                this.absencesMonthSpan = document.getElementById('absencesMonth');
+                this.todayStatusSpan = document.getElementById('todayStatus');
+                
+                // Modos de registro
+                this.modeBtns = document.querySelectorAll('.mode-btn');
+                this.quickActions = document.getElementById('quickActions');
+                
+                // Formulário de ponto
+                this.pontoForm = document.getElementById('pontoForm');
+                this.pontoDate = document.getElementById('pontoDate');
+                this.pontoEntrada = document.getElementById('pontoEntrada');
+                this.pontoIntervalo = document.getElementById('pontoIntervalo');
+                this.pontoRetorno = document.getElementById('pontoRetorno');
+                this.pontoSaida = document.getElementById('pontoSaida');
+                this.pontoObservacao = document.getElementById('pontoObservacao');
+                this.pontoAnexos = document.getElementById('pontoAnexos');
+                this.addPontoBtn = document.getElementById('addPontoBtn');
+                this.clearFormBtn = document.getElementById('clearFormBtn');
+                this.pontoAlert = document.getElementById('pontoAlert');
+                
+                // Localização
+                this.getLocationBtn = document.getElementById('getLocationBtn');
+                this.locationInfo = document.getElementById('locationInfo');
+                
+                // Tabela
+                this.pontosTableBody = document.getElementById('pontosTableBody');
+                this.extrasTableBody = document.getElementById('extrasTableBody');
+                this.todayBtn = document.getElementById('todayBtn');
+                this.weekBtn = document.getElementById('weekBtn');
+                this.monthBtn = document.getElementById('monthBtn');
+                this.exportBtn = document.getElementById('exportBtn');
+                
+                // Tabs
+                this.tabBtns = document.querySelectorAll('.tab-btn');
+                this.tabContents = document.querySelectorAll('.tab-content');
+                
+                // Cálculo salarial
+                this.salaryValue = document.getElementById('salaryValue');
+                this.workHours = document.getElementById('workHours');
+                this.extraPercentage = document.getElementById('extraPercentage');
+                this.calculateSalaryBtn = document.getElementById('calculateSalaryBtn');
+                this.salaryResults = document.getElementById('salaryResults');
+                this.hourValue = document.getElementById('hourValue');
+                this.extraHourValue = document.getElementById('extraHourValue');
+                this.totalExtraHours = document.getElementById('totalExtraHours');
+                this.totalExtraValue = document.getElementById('totalExtraValue');
+                
+                // Modal de visualização
+                this.pontoModal = document.getElementById('pontoModal');
+                this.pontoDetails = document.getElementById('pontoDetails');
+                this.closeBtn = document.querySelector('.close-btn');
+                this.closeModalBtn = document.getElementById('closeModalBtn');
+            }
+            
+            setupEvents() {
+                // Login
+                this.loginBtn.addEventListener('click', () => this.handleLogin());
+                this.registerBtn.addEventListener('click', () => this.handleRegister());
+                this.showRegister.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showRegisterForm();
+                });
+                this.showLogin.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showLoginForm();
+                });
+                
+                // Main
+                this.logoutBtn.addEventListener('click', () => this.handleLogout());
+                
+                // Modos de registro
+                this.modeBtns.forEach(btn => {
+                    btn.addEventListener('click', () => this.switchMode(btn.dataset.mode));
+                });
+                
+                // Ações rápidas
+                document.querySelectorAll('.quick-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.quickAction(e.target.closest('.quick-btn').dataset.action);
+                    });
+                });
+                
+                // Formulário de ponto
+                this.addPontoBtn.addEventListener('click', () => this.addPonto());
+                this.clearFormBtn.addEventListener('click', () => this.clearForm());
+                
+                // Localização
+                this.getLocationBtn.addEventListener('click', () => this.getLocation());
+                
+                // Tabela
+                this.todayBtn.addEventListener('click', () => this.filterPontos('today'));
+                this.weekBtn.addEventListener('click', () => this.filterPontos('week'));
+                this.monthBtn.addEventListener('click', () => this.filterPontos('month'));
+                this.exportBtn.addEventListener('click', () => this.exportPDF());
+                
+                // Tabs
+                this.tabBtns.forEach(btn => {
+                    btn.addEventListener('click', () => this.switchTab(btn.dataset.tab));
+                });
+                
+                // Cálculo salarial
+                this.calculateSalaryBtn.addEventListener('click', () => this.calculateSalary());
+                
+                // Modal de visualização
+                this.closeBtn.addEventListener('click', () => this.hideModal());
+                this.closeModalBtn.addEventListener('click', () => this.hideModal());
+                this.pontoModal.addEventListener('click', (e) => {
+                    if (e.target === this.pontoModal) this.hideModal();
+                });
+            }
+            
+            // Autenticação
+            handleLogin() {
+                const username = this.usernameInput.value;
+                const password = this.passwordInput.value;
+                
+                if (this.users[username] && this.users[username].password === password) {
+                    this.currentUser = username;
+                    localStorage.setItem('currentUser', this.currentUser);
+                    this.loadUserData();
+                    this.showMainScreen();
+                    this.loginError.style.display = 'none';
+                } else {
+                    this.loginError.style.display = 'block';
+                }
+            }
+            
+            handleRegister() {
+                const name = this.regName.value;
+                const username = this.regUsername.value;
+                const password = this.regPassword.value;
+                
+                if (!name || !username || !password) {
+                    this.registerError.textContent = 'Preencha todos os campos!';
+                    this.registerError.style.display = 'block';
+                    return;
+                }
+                
+                if (this.users[username]) {
+                    this.registerError.textContent = 'Usuário já existe!';
+                    this.registerError.style.display = 'block';
+                    return;
+                }
+                
+                this.users[username] = {
+                    password: password,
+                    profile: { 
+                        name: name, 
+                        workHours: 8,
+                        salary: null,
+                        workHoursPerWeek: 44
+                    },
+                    pontos: []
+                };
+                
+                localStorage.setItem('pontoUsers', JSON.stringify(this.users));
+                this.showLoginForm();
+                this.showAlert('Cadastro realizado com sucesso!', 'success');
+            }
+            
+            showLoginForm() {
+                this.loginForm.style.display = 'block';
+                this.registerForm.style.display = 'none';
+                this.registerError.style.display = 'none';
+            }
+            
+            showRegisterForm() {
+                this.loginForm.style.display = 'none';
+                this.registerForm.style.display = 'block';
+                this.loginError.style.display = 'none';
+            }
+            
+            handleLogout() {
+                this.currentUser = null;
+                localStorage.removeItem('currentUser');
+                this.showLoginScreen();
+            }
+            
+            showLoginScreen() {
+                this.loginScreen.style.display = 'flex';
+                this.mainScreen.style.display = 'none';
+                this.usernameInput.value = '';
+                this.passwordInput.value = '';
+                this.showLoginForm();
+            }
+            
+            showMainScreen() {
+                this.loginScreen.style.display = 'none';
+                this.mainScreen.style.display = 'block';
+                this.userNameSpan.textContent = this.userData.profile.name;
+                
+                // Carregar dados do usuário nos formulários
+                if (this.userData.profile.salary) {
+                    this.salaryValue.value = this.userData.profile.salary;
+                }
+                if (this.userData.profile.workHoursPerWeek) {
+                    this.workHours.value = this.userData.profile.workHoursPerWeek;
+                }
+                
+                this.updateDashboard();
+                this.renderPontosTable();
+                this.renderExtrasTable();
+            }
+            
+            loadUserData() {
+                this.userData = this.users[this.currentUser];
+                this.pontos = this.userData.pontos || [];
+            }
+            
+            saveUserData() {
+                this.users[this.currentUser].pontos = this.pontos;
+                this.users[this.currentUser].profile.salary = this.salaryValue.value;
+                this.users[this.currentUser].profile.workHoursPerWeek = this.workHours.value;
+                localStorage.setItem('pontoUsers', JSON.stringify(this.users));
+            }
+            
+            // Modos de registro
+            switchMode(mode) {
+                this.currentMode = mode;
+                
+                this.modeBtns.forEach(btn => {
+                    if (btn.dataset.mode === mode) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                if (mode === 'quick') {
+                    this.quickActions.style.display = 'flex';
+                    this.pontoForm.style.display = 'none';
+                } else {
+                    this.quickActions.style.display = 'none';
+                    this.pontoForm.style.display = 'grid';
+                }
+            }
+            
+            quickAction(action) {
+                const now = new Date();
+                const timeString = now.toTimeString().substring(0, 5);
+                
+                switch(action) {
+                    case 'entrada':
+                        this.pontoEntrada.value = timeString;
+                        break;
+                    case 'almoco':
+                        this.pontoIntervalo.value = timeString;
+                        break;
+                    case 'volta':
+                        this.pontoRetorno.value = timeString;
+                        break;
+                    case 'saida':
+                        this.pontoSaida.value = timeString;
+                        break;
+                }
+                
+                // Mudar para o modo manual após preencher
+                this.switchMode('manual');
+            }
+            
+            // Pontos
+            addPonto() {
+                const data = this.pontoDate.value;
+                const entrada = this.pontoEntrada.value;
+                const intervalo = this.pontoIntervalo.value;
+                const retorno = this.pontoRetorno.value;
+                const saida = this.pontoSaida.value;
+                const observacao = this.pontoObservacao.value;
+                
+                if (!data || !entrada || !saida) {
+                    this.showAlert('Preencha pelo menos data, entrada e saída!', 'error');
+                    return;
+                }
+                
+                // Verificar se já existe ponto para esta data
+                const existingIndex = this.pontos.findIndex(p => p.data === data);
+                
+                if (existingIndex >= 0) {
+                    this.showAlert('Já existe um ponto registrado para esta data!', 'error');
+                    return;
+                }
+                
+                // Verificar se a data é futura
+                const today = new Date().toISOString().split('T')[0];
+                if (data > today) {
+                    this.showAlert('Não é possível registrar ponto para datas futuras!', 'error');
+                    return;
+                }
+                
+                const novoPonto = {
+                    data,
+                    entrada,
+                    intervalo: intervalo || null,
+                    retorno: retorno || null,
+                    saida,
+                    observacao: observacao || null,
+                    localizacao: this.userLocation,
+                    anexos: null,
+                    horasTrabalhadas: '00:00',
+                    horasExtras: '00:00',
+                    status: 'presente'
+                };
+                
+                // Processar anexo se existir
+                if (this.pontoAnexos.files.length > 0) {
+                    const file = this.pontoAnexos.files[0];
+                    const reader = new FileReader();
+                    
+                    reader.onload = (e) => {
+                        novoPonto.anexos = {
+                            nome: file.name,
+                            tipo: file.type,
+                            dados: e.target.result
+                        };
+                        
+                        this.finalizarPonto(novoPonto);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                } else {
+                    this.finalizarPonto(novoPonto);
+                }
+            }
+            
+            finalizarPonto(ponto) {
+                this.calcularHoras(ponto);
+                this.pontos.push(ponto);
+                
+                this.saveUserData();
+                this.updateDashboard();
+                this.renderPontosTable();
+                this.renderExtrasTable();
+                this.showAlert('Ponto registrado com sucesso!', 'success');
+                this.clearForm();
+            }
+            
+            clearForm() {
+                this.pontoForm.reset();
+                this.pontoObservacao.value = '';
+                this.pontoAnexos.value = '';
+                this.locationInfo.style.display = 'none';
+                this.userLocation = null;
+                
+                const today = new Date().toISOString().split('T')[0];
+                this.pontoDate.value = today;
+            }
+            
+            calcularHoras(ponto) {
+                if (!ponto.entrada || !ponto.saida) return;
+                
+                // Converter para minutos desde meia-noite
+                const entradaMinutos = this.timeToMinutes(ponto.entrada);
+                const saidaMinutos = this.timeToMinutes(ponto.saida);
+                
+                let diffMinutos = saidaMinutos - entradaMinutos;
+                
+                // Subtrair intervalo de almoço se existir
+                if (ponto.intervalo && ponto.retorno) {
+                    const intervaloMinutos = this.timeToMinutes(ponto.intervalo);
+                    const retornoMinutos = this.timeToMinutes(ponto.retorno);
+                    diffMinutos -= (retornoMinutos - intervaloMinutos);
+                }
+                
+                // Calcular horas trabalhadas
+                const horas = Math.floor(diffMinutos / 60);
+                const minutos = diffMinutos % 60;
+                ponto.horasTrabalhadas = `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
+                
+                // Calcular horas extras conforme as regras especificadas
+                ponto.horasExtras = this.calcularHorasExtras(ponto);
+                
+                // Definir status
+                if (entradaMinutos > this.timeToMinutes('07:55')) {
+                    ponto.status = 'atraso';
+                } else {
+                    ponto.status = 'presente';
+                }
+            }
+            
+            calcularHorasExtras(ponto) {
+                const data = new Date(ponto.data);
+                const diaSemana = data.getDay(); // 0 = domingo, 1 = segunda, ..., 6 = sábado
+                
+                // Converter horários para minutos
+                const saidaMinutos = this.timeToMinutes(ponto.saida);
+                
+                // Horário de término padrão por dia da semana
+                let horarioTerminoPadrao;
+                
+                if (diaSemana >= 1 && diaSemana <= 4) {
+                    // Segunda a quinta: horário extra começa após 18:00
+                    horarioTerminoPadrao = this.timeToMinutes('18:00');
+                } else if (diaSemana === 5) {
+                    // Sexta: horário extra começa após 17:00
+                    horarioTerminoPadrao = this.timeToMinutes('17:00');
+                } else {
+                    // Fim de semana: todo o tempo é extra
+                    return ponto.horasTrabalhadas;
+                }
+                
+                // Calcular horas extras
+                let horasExtrasMinutos = 0;
+                
+                if (saidaMinutos > horarioTerminoPadrao) {
+                    horasExtrasMinutos = saidaMinutos - horarioTerminoPadrao;
+                }
+                
+                const horasExtrasH = Math.floor(horasExtrasMinutos / 60);
+                const horasExtrasM = horasExtrasMinutos % 60;
+                
+                return `${horasExtrasH.toString().padStart(2, '0')}:${horasExtrasM.toString().padStart(2, '0')}`;
+            }
+            
+            timeToMinutes(timeStr) {
+                if (!timeStr) return 0;
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                return hours * 60 + minutes;
+            }
+            
+            // Localização
+            getLocation() {
+                if (!navigator.geolocation) {
+                    this.showAlert('Geolocalização não é suportada pelo seu navegador', 'error');
+                    return;
+                }
+                
+                this.getLocationBtn.innerHTML = '<div class="loading"></div> Obtendo localização...';
+                this.getLocationBtn.disabled = true;
+                
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // Coordenadas da Vancrei Assessoria Contábil (aproximadas)
+                        const vancreiLat = -23.5201;
+                        const vancreiLng = -47.4750;
+                        
+                        // Calcular distância (fórmula simplificada)
+                        const distance = this.calculateDistance(lat, lng, vancreiLat, vancreiLng);
+                        
+                        // Considerar que está no local se estiver a menos de 500 metros
+                        if (distance < 0.5) {
+                            this.userLocation = {
+                                lat: lat,
+                                lng: lng,
+                                verified: true,
+                                distance: distance.toFixed(2)
+                            };
+                            this.locationInfo.innerHTML = `
+                                <i class="fas fa-check-circle location-verified"></i>
+                                <span>Localização verificada: Vancrei Assessoria Contábil (${distance.toFixed(2)} km)</span>
+                            `;
+                        } else {
+                            this.userLocation = {
+                                lat: lat,
+                                lng: lng,
+                                verified: false,
+                                distance: distance.toFixed(2)
+                            };
+                            this.locationInfo.innerHTML = `
+                                <i class="fas fa-exclamation-triangle location-not-verified"></i>
+                                <span>Localização não verificada: Fora do escritório (${distance.toFixed(2)} km)</span>
+                            `;
+                        }
+                        
+                        this.locationInfo.style.display = 'flex';
+                        this.getLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i> Verificar Localização';
+                        this.getLocationBtn.disabled = false;
+                    },
+                    (error) => {
+                        this.showAlert('Erro ao obter localização: ' + error.message, 'error');
+                        this.getLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i> Verificar Localização';
+                        this.getLocationBtn.disabled = false;
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            }
+            
+            calculateDistance(lat1, lon1, lat2, lon2) {
+                const R = 6371; // Raio da Terra em km
+                const dLat = this.deg2rad(lat2 - lat1);
+                const dLon = this.deg2rad(lon2 - lon1);
+                const a = 
+                    Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2); 
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+                return R * c;
+            }
+            
+            deg2rad(deg) {
+                return deg * (Math.PI/180);
+            }
+            
+            // Cálculo Salarial
+            calculateSalary() {
+                const salary = parseFloat(this.salaryValue.value);
+                const hoursPerWeek = parseInt(this.workHours.value);
+                const percentage = parseInt(this.extraPercentage.value);
+                
+                if (!salary || salary <= 0) {
+                    this.showAlert('Informe um salário válido', 'error');
+                    return;
+                }
+                
+                // Calcular valor da hora normal
+                const hoursPerMonth = hoursPerWeek * 5; // Aproximação: 5 semanas no mês
+                const hourValue = salary / hoursPerMonth;
+                
+                // Calcular valor da hora extra
+                const extraHourValue = hourValue * (1 + percentage / 100);
+                
+                // Calcular total de horas extras no mês
+                const currentMonth = new Date().getMonth();
+                const currentYear = new Date().getFullYear();
+                
+                let totalExtraMinutes = 0;
+                
+                this.pontos.forEach(ponto => {
+                    const pontoDate = new Date(ponto.data);
+                    if (pontoDate.getMonth() === currentMonth && pontoDate.getFullYear() === currentYear) {
+                        if (ponto.horasExtras && ponto.horasExtras !== '00:00') {
+                            const [h, m] = ponto.horasExtras.split(':').map(Number);
+                            totalExtraMinutes += h * 60 + m;
+                        }
+                    }
+                });
+                
+                const totalExtraHours = Math.floor(totalExtraMinutes / 60);
+                const totalExtraMinutesRemainder = totalExtraMinutes % 60;
+                const totalExtraValue = (totalExtraMinutes / 60) * extraHourValue;
+                
+                // Atualizar interface
+                this.hourValue.textContent = `R$ ${hourValue.toFixed(2)}`;
+                this.extraHourValue.textContent = `R$ ${extraHourValue.toFixed(2)}`;
+                this.totalExtraHours.textContent = `${totalExtraHours.toString().padStart(2, '0')}:${totalExtraMinutesRemainder.toString().padStart(2, '0')}`;
+                this.totalExtraValue.textContent = `R$ ${totalExtraValue.toFixed(2)}`;
+                
+                this.salaryResults.style.display = 'block';
+                
+                // Salvar dados do usuário
+                this.saveUserData();
+            }
+            
+            // UI
+            updateDashboard() {
+                const today = new Date().toISOString().split('T')[0];
+                const todayPonto = this.pontos.find(p => p.data === today);
+                
+                let totalToday = '00:00';
+                let overtimeToday = '00:00';
+                let totalWeek = 0;
+                let absencesMonth = 0;
+                
+                if (todayPonto) {
+                    totalToday = todayPonto.horasTrabalhadas;
+                    overtimeToday = todayPonto.horasExtras;
+                }
+                
+                // Calcular total da semana (últimos 7 dias)
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                
+                this.pontos.forEach(ponto => {
+                    const pontoDate = new Date(ponto.data);
+                    if (pontoDate >= oneWeekAgo && ponto.horasTrabalhadas) {
+                        const [h, m] = ponto.horasTrabalhadas.split(':').map(Number);
+                        totalWeek += h * 60 + m;
+                    }
+                });
+                
+                const totalWeekH = Math.floor(totalWeek / 60);
+                const totalWeekM = totalWeek % 60;
+                
+                this.hoursTodaySpan.textContent = totalToday;
+                this.overtimeTodaySpan.textContent = overtimeToday;
+                this.hoursWeekSpan.textContent = `${totalWeekH.toString().padStart(2, '0')}:${totalWeekM.toString().padStart(2, '0')}`;
+                this.absencesMonthSpan.textContent = absencesMonth;
+                
+                if (todayPonto) {
+                    this.todayStatusSpan.textContent = 'Registrado';
+                } else {
+                    this.todayStatusSpan.textContent = 'Sem registro';
+                }
+            }
+            
+            renderPontosTable(filter = 'month') {
+                this.pontosTableBody.innerHTML = '';
+                
+                let pontosFiltrados = [...this.pontos].sort((a, b) => new Date(b.data) - new Date(a.data));
+                
+                if (filter === 'today') {
+                    const today = new Date().toISOString().split('T')[0];
+                    pontosFiltrados = pontosFiltrados.filter(p => p.data === today);
+                } else if (filter === 'week') {
+                    const oneWeekAgo = new Date();
+                    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                    pontosFiltrados = pontosFiltrados.filter(p => new Date(p.data) >= oneWeekAgo);
+                } else if (filter === 'month') {
+                    const oneMonthAgo = new Date();
+                    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+                    pontosFiltrados = pontosFiltrados.filter(p => new Date(p.data) >= oneMonthAgo);
+                }
+                
+                if (pontosFiltrados.length === 0) {
+                    this.pontosTableBody.innerHTML = '<tr><td colspan="10" style="text-align: center;">Nenhum registro encontrado</td></tr>';
+                    return;
+                }
+                
+                pontosFiltrados.forEach((ponto, index) => {
+                    const tr = document.createElement('tr');
+                    let statusBadge = '';
+                    
+                    if (ponto.status === 'presente') {
+                        statusBadge = '<span class="status-badge status-presente">Presente</span>';
+                    } else if (ponto.status === 'atraso') {
+                        statusBadge = '<span class="status-badge status-atraso">Atraso</span>';
+                    } else if (ponto.status === 'falta') {
+                        statusBadge = '<span class="status-badge status-falta">Falta</span>';
+                    }
+                    
+                    let locationIcon = '<i class="fas fa-question-circle" style="color: var(--gray)"></i>';
+                    if (ponto.localizacao) {
+                        if (ponto.localizacao.verified) {
+                            locationIcon = '<i class="fas fa-check-circle location-verified"></i>';
+                        } else {
+                            locationIcon = '<i class="fas fa-times-circle location-not-verified"></i>';
+                        }
+                    }
+                    
+                    tr.innerHTML = `
+                        <td>${this.formatDate(ponto.data)}</td>
+                        <td>${ponto.entrada || '-'}</td>
+                        <td>${ponto.intervalo || '-'}</td>
+                        <td>${ponto.retorno || '-'}</td>
+                        <td>${ponto.saida || '-'}</td>
+                        <td>${ponto.horasTrabalhadas || '-'}</td>
+                        <td>${ponto.horasExtras || '-'}</td>
+                        <td>${statusBadge}</td>
+                        <td>${locationIcon}</td>
+                        <td>
+                            <button class="action-btn view-btn" data-index="${index}">
+                                <i class="fas fa-eye"></i> Visualizar
+                            </button>
+                        </td>
+                    `;
+                    
+                    this.pontosTableBody.appendChild(tr);
+                });
+                
+                // Adicionar eventos aos botões
+                document.querySelectorAll('.view-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = e.target.closest('.view-btn').getAttribute('data-index');
+                        this.viewPonto(index);
+                    });
+                });
+            }
+            
+            renderExtrasTable() {
+                this.extrasTableBody.innerHTML = '';
+                
+                const pontosComExtras = this.pontos.filter(p => p.horasExtras !== '00:00' && p.horasExtras !== '-');
+                
+                if (pontosComExtras.length === 0) {
+                    this.extrasTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Nenhuma hora extra registrada</td></tr>';
+                    return;
+                }
+                
+                pontosComExtras.forEach(ponto => {
+                    const data = new Date(ponto.data);
+                    const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+                    const diaSemana = diasSemana[data.getDay()];
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${this.formatDate(ponto.data)}</td>
+                        <td>${diaSemana}</td>
+                        <td>${ponto.horasExtras}</td>
+                        <td>${ponto.horasExtras}</td>
+                    `;
+                    
+                    this.extrasTableBody.appendChild(tr);
+                });
+            }
+            
+            switchTab(tabName) {
+                this.tabBtns.forEach(btn => btn.classList.remove('active'));
+                this.tabContents.forEach(content => content.classList.remove('active'));
+                
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+                document.getElementById(`${tabName}Tab`).classList.add('active');
+                
+                if (tabName === 'extras') {
+                    this.renderExtrasTable();
+                } else if (tabName === 'salary') {
+                    this.calculateSalary();
+                }
+            }
+            
+            viewPonto(index) {
+                const ponto = this.pontos[index];
+                
+                let locationText = 'Não verificada';
+                if (ponto.localizacao) {
+                    if (ponto.localizacao.verified) {
+                        locationText = `Verificada (Vancrei Assessoria Contábil) - Distância: ${ponto.localizacao.distance} km`;
+                    } else {
+                        locationText = `Fora do escritório - Distância: ${ponto.localizacao.distance} km`;
+                    }
+                }
+                
+                let anexoHTML = '';
+                if (ponto.anexos) {
+                    anexoHTML = `
+                        <div class="attachment-item">
+                            <i class="fas fa-paperclip attachment-icon"></i>
+                            <span>${ponto.anexos.nome}</span>
+                            <a href="${ponto.anexos.dados}" download="${ponto.anexos.nome}" class="btn btn-outline" style="margin-left: auto;">
+                                <i class="fas fa-download"></i> Baixar
+                            </a>
+                        </div>
+                    `;
+                }
+                
+                this.pontoDetails.innerHTML = `
+                    <div class="form-group">
+                        <label>Data</label>
+                        <div>${this.formatDate(ponto.data)}</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Horários</label>
+                        <div>
+                            <strong>Entrada:</strong> ${ponto.entrada || '-'} |
+                            <strong>Almoço:</strong> ${ponto.intervalo || '-'} |
+                            <strong>Volta:</strong> ${ponto.retorno || '-'} |
+                            <strong>Saída:</strong> ${ponto.saida || '-'}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Horas Trabalhadas</label>
+                        <div>${ponto.horasTrabalhadas || '-'}</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Horas Extras</label>
+                        <div>${ponto.horasExtras || '-'}</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <div>
+                            ${ponto.status === 'presente' ? '<span class="status-badge status-presente">Presente</span>' : ''}
+                            ${ponto.status === 'atraso' ? '<span class="status-badge status-atraso">Atraso</span>' : ''}
+                            ${ponto.status === 'falta' ? '<span class="status-badge status-falta">Falta</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Localização</label>
+                        <div class="location-info">
+                            ${ponto.localizacao && ponto.localizacao.verified ? 
+                                '<i class="fas fa-check-circle location-verified"></i>' : 
+                                '<i class="fas fa-times-circle location-not-verified"></i>'
+                            }
+                            <span>${locationText}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Observações</label>
+                        <div>${ponto.observacao || 'Nenhuma observação registrada'}</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Anexos</label>
+                        ${anexoHTML || '<div>Nenhum anexo</div>'}
+                    </div>
+                `;
+                
+                this.showModal();
+            }
+            
+            filterPontos(filter) {
+                this.renderPontosTable(filter);
+            }
+            
+            // Modal
+            showModal() {
+                this.pontoModal.style.display = 'flex';
+            }
+            
+            hideModal() {
+                this.pontoModal.style.display = 'none';
+            }
+            
+            // PDF
+            exportPDF() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(20);
+                doc.text('Relatório de Ponto', 105, 15, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.text(`Funcionário: ${this.userData.profile.name}`, 14, 25);
+                doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 14, 32);
+                
+                const tableColumn = ["Data", "Entrada", "Almoço", "Volta", "Saída", "Horas", "Extras", "Status"];
+                const tableRows = [];
+                
+                const pontosOrdenados = [...this.pontos].sort((a, b) => new Date(b.data) - new Date(a.data));
+                
+                pontosOrdenados.forEach(ponto => {
+                    let status = '';
+                    if (ponto.status === 'presente') status = 'Presente';
+                    else if (ponto.status === 'atraso') status = 'Atraso';
+                    
+                    tableRows.push([
+                        this.formatDate(ponto.data),
+                        ponto.entrada || '-',
+                        ponto.intervalo || '-',
+                        ponto.retorno || '-',
+                        ponto.saida || '-',
+                        ponto.horasTrabalhadas || '-',
+                        ponto.horasExtras || '-',
+                        status
+                    ]);
+                });
+                
+                doc.autoTable({
+                    head: [tableColumn],
+                    body: tableRows,
+                    startY: 40,
+                    theme: 'grid',
+                    styles: { fontSize: 10 },
+                    headStyles: { fillColor: [44, 90, 160] }
+                });
+                
+                doc.save(`relatorio_ponto_${new Date().toISOString().split('T')[0]}.pdf`);
+            }
+            
+            // Utils
+            formatDate(dateString) {
+                return new Date(dateString).toLocaleDateString('pt-BR');
+            }
+            
+            showAlert(message, type) {
+                this.pontoAlert.textContent = message;
+                this.pontoAlert.className = `alert alert-${type}`;
+                this.pontoAlert.style.display = 'flex';
+                
+                setTimeout(() => {
+                    this.pontoAlert.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            window.pontoSystem = new PontoSystem();
+        });
+    </script>
+</body>
+</html>
